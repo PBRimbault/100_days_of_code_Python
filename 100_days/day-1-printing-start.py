@@ -17,3 +17,17 @@ b = temp_a
 # print out the values
 print("a: " + a)
 print("b: " + b)
+
+#1. Create a greeting for your program
+print("Welcome to the Band Name Generator App!")
+
+#2. Ask the user for the city that they grew up in.
+print("What city did you grow up in?")
+city = input()
+
+#3. Ask the user for the name of their favourite pet
+print("What was the name of your favourite pet?")
+pet = input()
+
+#4. Combine the city and pet names
+print("Your band name could be " + city + " " + pet)
