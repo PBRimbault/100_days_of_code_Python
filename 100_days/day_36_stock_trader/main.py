@@ -15,7 +15,7 @@ alpha_vantage_api = '0932AKBUWY8FBQC7'
 news_api = 'a78b5461dc7b46ae8fc2cdfc36c7c673'
 
 account_sid = 'ACc50768f767887369eba0020f64a6b7d5'
-auth_token = '64855baa05b7b7b5f3d124d25a416ebd'
+auth_token = '###'
 
 # Set the parameters for the API call to alphavantage
 alpha_parameters = {
