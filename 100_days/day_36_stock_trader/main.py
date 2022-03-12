@@ -2,6 +2,8 @@ import requests
 from datetime import datetime as dt
 from datetime import timedelta
 from datetime import date
+from twilio.rest import Client
+
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla Inc"
@@ -10,11 +12,10 @@ STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 
 alpha_vantage_api = '0932AKBUWY8FBQC7'
+news_api = 'a78b5461dc7b46ae8fc2cdfc36c7c673'
 
-## STEP 1: Use https://www.alphavantage.co/query
-# When STOCK price increase/decreases by 5% between yesterday and the day before yesterday then print("Get News").
-#HINT 1: Get the closing price for yesterday and the day before yesterday. Find the positive difference between the two prices. e.g. 40 - 20 = -20, but the positive difference is 20.
-#HINT 2: Work out the value of 5% of yerstday's closing stock price. 
+account_sid = 'ACc50768f767887369eba0020f64a6b7d5'
+auth_token = '64855baa05b7b7b5f3d124d25a416ebd'
 
 # Set the parameters for the API call to alphavantage
 alpha_parameters = {
@@ -55,42 +56,43 @@ yesterday_price = float(data_alpha['Time Series (Daily)'][previousDate]['4. clos
 # check the percentage change between yesterday to today
 price_difference = abs(today_price - yesterday_price)
 percent_change = 100 * price_difference / yesterday_price
+print(f'Percent change: {percent_change}')
+
+
+
+def get_news():
+
+    # Set the parameters for the API call to NewsAPI
+    news_parameters = {
+        'q': COMPANY_NAME,
+        'pageSize': 3,
+        "apiKey": news_api,   
+    }
+
+    # Do the API call to NewsAPI
+    response_news = requests.get(url=NEWS_ENDPOINT, params=news_parameters)
+    response_news.raise_for_status()
+
+    # Convert the API response to JSON format
+    data_news = response_news.json()
+    articles = data_news['articles']
+    # print(articles)
+
+    for item in articles:
+
+        headline = item['title']
+        brief = item['content']
+        link = item['url']
+
+        client = Client(account_sid, auth_token)
+
+        message = client.messages \
+            .create(
+                    body=f"{STOCK}: {percent_change}\nHeadline: {headline}\nLink: {link}",
+                    from_='+17047033036',
+                    to='+27716067067'
+                )
 
 if percent_change > 5:
-    print("Get news")
-
-
-## STEP 2: Use https://newsapi.org/docs/endpoints/everything
-# Instead of printing ("Get News"), actually fetch the first 3 articles for the COMPANY_NAME. 
-#HINT 1: Think about using the Python Slice Operator
-
-
-# Set the parameters for the API call to NewsAPI
-news_parameters = {
-    "key": 'value',   
-}
-
-# Do the API call to NewsAPI
-response_news = requests.get(url=NEWS_ENDPOINT, params=news_parameters)
-response_news.raise_for_status()
-
-# Convert the API response to JSON format
-data_news = response_news.json()
-
-## STEP 3: Use twilio.com/docs/sms/quickstart/python
-# Send a separate message with each article's title and description to your phone number. 
-#HINT 1: Consider using a List Comprehension.
-
-
-
-#Optional: Format the SMS message like this: 
-"""
-TSLA: 🔺2%
-Headline: Were Hedge Funds Right About Piling Into Tesla Inc. (TSLA)?. 
-Brief: We at Insider Monkey have gone over 821 13F filings that hedge funds and prominent investors are required to file by the SEC The 13F filings show the funds' and investors' portfolio positions as of March 31st, near the height of the coronavirus market crash.
-or
-"TSLA: 🔻5%
-Headline: Were Hedge Funds Right About Piling Into Tesla Inc. (TSLA)?. 
-Brief: We at Insider Monkey have gone over 821 13F filings that hedge funds and prominent investors are required to file by the SEC The 13F filings show the funds' and investors' portfolio positions as of March 31st, near the height of the coronavirus market crash.
-"""
-
+    print('Will send the SMS through')
+    get_news()
