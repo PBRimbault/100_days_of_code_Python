@@ -30,35 +30,15 @@ response_alpha = requests.get(url=STOCK_ENDPOINT, params=alpha_parameters)
 response_alpha.raise_for_status()
 
 # convert the API response to JSON format
-data_alpha = response_alpha.json()
-
-def latest_business_day(check_day):
-    # check if the check_day argument is a weekday and if not, roll back to previous business day (Mon - Fri)
-    if date.weekday(check_day) == 5:      #if it's Saturday
-        check_day = check_day - timedelta(days = 1) #then make it Friday
-    elif date.weekday(check_day) == 6:      #if it's Sunday
-        check_day = check_day - timedelta(days = 2); #then make it Friday
-    return check_day
-
-# Pass today - 1 day to latest_business_day to check if it's a business day. The - 1 is because often RSA today is ahead of closing in USA
-this_day = dt.today() - timedelta(days = 1)
-lastBusDay = latest_business_day(this_day)
-# Pass yesterday to latest_business_day to check if it's a business day.
-previousDay = latest_business_day(lastBusDay) - timedelta(days = 1)
-# Convert days to string date format to check the JSON dictionary
-lastBusDate = lastBusDay.strftime("%Y-%m-%d")
-previousDate = previousDay.strftime("%Y-%m-%d")
-
-# Get the closing prices for today and yesterday
-today_price = float(data_alpha['Time Series (Daily)'][lastBusDate]['4. close'])
-yesterday_price = float(data_alpha['Time Series (Daily)'][previousDate]['4. close'])
+data_alpha = response_alpha.json()['Time Series (Daily)']
+data_list = [value for (key, value) in data_alpha.items()]
+yesterday_closing = float(data_list[0]['4. close'])
+day_before_yesterday_closing = float(data_list[1]['4. close'])
 
 # check the percentage change between yesterday to today
-price_difference = abs(today_price - yesterday_price)
-percent_change = 100 * price_difference / yesterday_price
+price_difference = abs(yesterday_closing - day_before_yesterday_closing)
+percent_change = 100 * price_difference / day_before_yesterday_closing
 print(f'Percent change: {percent_change}')
-
-
 
 def get_news():
 
