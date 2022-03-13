@@ -32,6 +32,7 @@ response_alpha.raise_for_status()
 # convert the API response to JSON format
 data_alpha = response_alpha.json()['Time Series (Daily)']
 data_list = [value for (key, value) in data_alpha.items()]
+
 yesterday_closing = float(data_list[0]['4. close'])
 day_before_yesterday_closing = float(data_list[1]['4. close'])
 
